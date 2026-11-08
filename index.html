@@ -1,0 +1,35 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Trust Spacetime Audit</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-grid">
+        <main id="three-container" class="panel">
+            <header class="panel-header">Kerr Geodesic Worldline</header>
+        </main>
+        <aside id="audit-panel" class="panel">
+            <header class="panel-header">FIPS 204 PQC Audit Log</header>
+            <div id="qber-meter" class="metric">QBER: <span>0.00%</span></div>
+            <div id="crypto-state" class="metric status-secure">State: SECURE</div>
+            <ul id="audit-log-list"></ul>
+        </aside>
+        <aside id="oscilloscope-panel" class="panel">
+            <header class="panel-header">Symplectic Energy Drift</header>
+            <canvas id="oscilloscope-canvas"></canvas>
+            <div id="energy-metric" class="metric">Drift: <span>1.00000000</span></div>
+        </aside>
+        <footer id="control-rail" class="panel">
+            <button id="btn-qber">Force QBER Spike</button>
+            <button id="btn-biquad">Inject Biquad Instability</button>
+            <button id="btn-downgrade">Simulate Downgrade Attack</button>
+        </footer>
+    </div>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
