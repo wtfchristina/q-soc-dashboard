@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+// NEW: Import Post-Processing Addons
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 // 1. Three.js Setup (Physics vs PINN)
 const container = document.getElementById('three-container');
@@ -7,6 +11,17 @@ const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
 container.appendChild(renderer.domElement);
+
+// NEW: Post-Processing Engine for Cinematic Glow
+const renderScene = new RenderPass(scene, camera);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 1.5, 0.4, 0.85);
+bloomPass.threshold = 0.0;
+bloomPass.strength = 2.5; // High intensity neon glow
+bloomPass.radius = 0.8;
+
+const composer = new EffectComposer(renderer);
+composer.addPass(renderScene);
+composer.addPass(bloomPass);
 
 // Black Hole wireframe & accent orbital shell
 const geometry = new THREE.SphereGeometry(2, 32, 32);
@@ -35,7 +50,7 @@ scene.add(physTrail);
 const pinnPositions = new Float32Array(maxPoints * 3);
 const pinnGeo = new THREE.BufferGeometry();
 pinnGeo.setAttribute('position', new THREE.BufferAttribute(pinnPositions, 3));
-const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff, linewidth: 1.5 });
+const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff, linewidth: 2 });
 const pinnTrail = new THREE.Line(pinnGeo, pinnMat);
 scene.add(pinnTrail);
 
@@ -45,6 +60,7 @@ window.addEventListener('resize', () => {
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
+    composer.setSize(container.clientWidth, container.clientHeight);
 });
 
 function animate() {
@@ -52,7 +68,8 @@ function animate() {
     blackHole.rotation.y += 0.003; 
     blackHole.rotation.x += 0.0015;
     outerShell.rotation.y -= 0.001;
-    renderer.render(scene, camera);
+    // Render through the composer to trigger the Bloom Effect
+    composer.render();
 }
 animate();
 
@@ -71,9 +88,9 @@ for(let i=1; i<=6; i++) {
 const eegCanvas = document.getElementById('eeg-canvas');
 const eegCtx = eegCanvas.getContext('2d');
 eegCanvas.width = eegCanvas.parentElement.clientWidth;
-eegCanvas.height = 70;
+eegCanvas.height = 80;
 
-let eegData = Array(100).fill(35);
+let eegData = Array(100).fill(40);
 let bciTargetStress = 0.2;
 let bciStress = 0.2;
 
@@ -81,30 +98,26 @@ function animateEEG() {
     requestAnimationFrame(animateEEG);
     eegCtx.clearRect(0, 0, eegCanvas.width, eegCanvas.height);
     
-    // Increment stress smoothly
     bciStress += (bciTargetStress - bciStress) * 0.1;
     
-    // Draw fine backdrop grid
-    eegCtx.strokeStyle = '#081c1f';
-    eegCtx.lineWidth = 0.5;
-    for (let x = 0; x < eegCanvas.width; x += 15) {
+    eegCtx.strokeStyle = 'rgba(26,211,220,0.15)';
+    eegCtx.lineWidth = 1;
+    for (let x = 0; x < eegCanvas.width; x += 20) {
         eegCtx.beginPath(); eegCtx.moveTo(x, 0); eegCtx.lineTo(x, eegCanvas.height); eegCtx.stroke();
     }
-    for (let y = 0; y < eegCanvas.height; y += 15) {
+    for (let y = 0; y < eegCanvas.height; y += 20) {
         eegCtx.beginPath(); eegCtx.moveTo(0, y); eegCtx.lineTo(eegCanvas.width, y); eegCtx.stroke();
     }
 
-    // Update signal arrays
     eegData.shift();
-    const noiseAmp = 5 + (bciStress * 15);
-    const frequencyFactor = 0.1 + (bciStress * 0.4);
-    const newVal = 35 + Math.sin(Date.now() * frequencyFactor) * noiseAmp + (Math.random() - 0.5) * 6;
+    const noiseAmp = 8 + (bciStress * 20);
+    const frequencyFactor = 0.15 + (bciStress * 0.5);
+    const newVal = 40 + Math.sin(Date.now() * frequencyFactor) * noiseAmp + (Math.random() - 0.5) * 8;
     eegData.push(newVal);
 
-    // Draw wave
     eegCtx.beginPath();
-    eegCtx.lineWidth = 1.2;
-    eegCtx.strokeStyle = bciStress > 0.6 ? '#ff4545' : '#26e680';
+    eegCtx.lineWidth = 2;
+    eegCtx.strokeStyle = bciStress > 0.6 ? '#ff5252' : '#39ff96';
     for(let i = 0; i < eegData.length; i++) {
         const x = (i / (eegData.length - 1)) * eegCanvas.width;
         if(i === 0) eegCtx.moveTo(x, eegData[i]);
@@ -118,9 +131,9 @@ animateEEG();
 const driftCanvas = document.getElementById('drift-canvas');
 const driftCtx = driftCanvas.getContext('2d');
 driftCanvas.width = driftCanvas.parentElement.clientWidth;
-driftCanvas.height = 60;
+driftCanvas.height = 70;
 
-let driftData = Array(120).fill(30);
+let driftData = Array(120).fill(35);
 let driftAmplitudeTarget = 1;
 let driftAmplitude = 1;
 
@@ -130,20 +143,19 @@ function animateDrift() {
     
     driftAmplitude += (driftAmplitudeTarget - driftAmplitude) * 0.05;
 
-    // Grid backdrop
-    driftCtx.strokeStyle = '#081c1f';
-    driftCtx.lineWidth = 0.5;
+    driftCtx.strokeStyle = 'rgba(26,211,220,0.15)';
+    driftCtx.lineWidth = 1;
     for (let x = 0; x < driftCanvas.width; x += 20) {
         driftCtx.beginPath(); driftCtx.moveTo(x, 0); driftCtx.lineTo(x, driftCanvas.height); driftCtx.stroke();
     }
 
     driftData.shift();
-    const newVal = 30 + Math.sin(Date.now() * 0.005) * (5 * driftAmplitude) + Math.cos(Date.now() * 0.01) * (2 * driftAmplitude);
+    const newVal = 35 + Math.sin(Date.now() * 0.005) * (8 * driftAmplitude) + Math.cos(Date.now() * 0.01) * (3 * driftAmplitude);
     driftData.push(newVal);
 
     driftCtx.beginPath();
-    driftCtx.lineWidth = 1;
-    driftCtx.strokeStyle = driftAmplitude > 3 ? '#e6b226' : '#0fa2a9';
+    driftCtx.lineWidth = 2;
+    driftCtx.strokeStyle = driftAmplitude > 3 ? '#ffc436' : '#1ad3dc';
     for(let i = 0; i < driftData.length; i++) {
         const x = (i / (driftData.length - 1)) * driftCanvas.width;
         if(i === 0) driftCtx.moveTo(x, driftData[i]);
@@ -178,7 +190,6 @@ ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (isAlertState) return;
 
-        // Update 3D Orbits
         if (data.phys_pos && data.pinn_pos) {
             for (let i = (maxPoints - 1) * 3; i >= 3; i--) {
                 physPositions[i] = physPositions[i - 3];
@@ -191,7 +202,6 @@ ws.onmessage = (event) => {
             physGeo.attributes.position.needsUpdate = true; pinnGeo.attributes.position.needsUpdate = true;
         }
 
-        // Update BCI stress target 
         if (data.bci_stress !== undefined) {
             bciTargetStress = data.bci_stress;
             const stressPct = bciStress * 100;
@@ -205,7 +215,6 @@ ws.onmessage = (event) => {
     } catch (e) { console.error(e); }
 };
 
-// Fault Injections
 document.getElementById('btn-qber').addEventListener('click', () => {
     if (isAlertState) return; isAlertState = true;
     logAudit('QBER SPIKE: Eavesdropping attempt on ISL.', 'alert');
@@ -213,14 +222,14 @@ document.getElementById('btn-qber').addEventListener('click', () => {
     bciBar.style.width = '95%'; bciBar.style.background = 'var(--accent-alert)';
     bciStatus.textContent = 'HIGH LOAD'; bciStatus.className = 'status-alert';
     cryptoState.textContent = 'RE-KEYING PQC'; cryptoState.className = 'metric status-alert';
-    physMat.color.setHex(0xff4545); pinnMat.color.setHex(0xff4545);
+    physMat.color.setHex(0xff5252); pinnMat.color.setHex(0xff5252);
     
     setTimeout(() => {
         logAudit('RECOVERY: PQC key regenerated. Pilot stress normalizing.', 'secure');
         bciTargetStress = 0.2;
         bciStatus.textContent = 'NOMINAL'; bciStatus.className = 'status-secure';
         cryptoState.textContent = 'SECURE'; cryptoState.className = 'metric status-secure';
-        physMat.color.setHex(0x26e680); pinnMat.color.setHex(0x00bbff);
+        physMat.color.setHex(0x39ff96); pinnMat.color.setHex(0x00d0ff);
         isAlertState = false;
     }, 4000);
 });
