@@ -1,10 +1,10 @@
 :root {
     --bg-color: #020607;
-    --panel-bg: rgba(4, 12, 14, 0.90);
+    --panel-bg: rgba(4, 12, 14, 0.85);
     --border-color: #1a4f54;
     --border-glow: #1ad3dc;
-    --text-primary: #ffffff; /* Brightened for contrast */
-    --text-muted: #62aeb5;
+    --text-primary: #ffffff; 
+    --text-muted: #8bdfe6; /* Brightened for legibility */
     --accent-secure: #39ff96;
     --accent-alert: #ff5252;
     --accent-warn: #ffc436;
@@ -21,41 +21,45 @@ body {
     position: relative;
 }
 
-/* Sci-fi Overlay Visuals */
+/* Fixed Overlays: Moved to background and reduced opacity */
 .glow-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle, rgba(15,162,169,0.08) 0%, rgba(2,6,7,0.6) 100%);
+    background: radial-gradient(circle, rgba(26,211,220,0.15) 0%, rgba(2,6,7,0.8) 100%);
     pointer-events: none;
-    z-index: 10;
+    z-index: 1;
 }
 
 .scanlines {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
     background-size: 100% 4px, 6px 100%;
     pointer-events: none;
-    z-index: 11;
+    z-index: 2;
 }
 
-/* Utility Top Bar */
+/* Elevated Content: Placed above the overlays */
 .utility-bar {
+    position: relative;
+    z-index: 10;
     display: flex;
     justify-content: space-between;
     background: #040c0e;
     border-bottom: 1px solid var(--border-color);
-    padding: 4px 15px;
-    font-size: 10px;
+    padding: 6px 15px;
+    font-size: 12px; /* Increased */
+    font-weight: bold;
     letter-spacing: 1.5px;
     color: var(--text-muted);
-    box-shadow: 0 0 15px rgba(26,211,220,0.2);
+    box-shadow: 0 0 15px rgba(26,211,220,0.3);
 }
 .utility-bar span.green { color: var(--accent-secure); text-shadow: 0 0 5px var(--accent-secure); }
 .utility-bar span.cyan { color: var(--accent-pinn); text-shadow: 0 0 5px var(--accent-pinn); }
 
-/* Dashboard Grid System */
 .dashboard-grid {
+    position: relative;
+    z-index: 10;
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     grid-template-rows: 1fr 60px;
@@ -74,30 +78,30 @@ body {
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    box-shadow: inset 0 0 20px rgba(26,211,220,0.1), 0 0 15px rgba(0,0,0,0.8);
+    box-shadow: inset 0 0 20px rgba(26,211,220,0.15), 0 0 15px rgba(0,0,0,0.8);
 }
 
 .panel-header {
     background: rgba(14, 38, 42, 0.9);
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: 10px 12px;
+    font-size: 13px; /* Increased */
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
-    text-shadow: 0 0 8px rgba(255,255,255,0.6);
+    text-shadow: 0 0 5px rgba(255,255,255,0.8);
 }
 .panel-header span.grn { color: var(--accent-secure); text-shadow: 0 0 8px var(--accent-secure); }
 .panel-header span.blu { color: var(--accent-pinn); text-shadow: 0 0 8px var(--accent-pinn); }
 
 /* Left Viewport Overlay Mechanics */
 .physics-panel { position: relative; border: 1px solid var(--border-color); }
-.viewport-hud { position: absolute; top: 35px; left: 15px; font-size: 11px; color: var(--text-primary); text-shadow: 0 0 5px var(--border-glow); z-index: 5; pointer-events: none; }
-.viewport-stats { position: absolute; top: 35px; right: 15px; font-size: 10px; color: var(--text-primary); text-align: right; text-shadow: 0 0 5px var(--border-glow); z-index: 5; pointer-events: none; }
-.orbital-telemetry-panel { position: absolute; bottom: 15px; left: 15px; background: rgba(2, 6, 7, 0.95); border: 1px solid var(--border-color); padding: 8px; font-size: 9px; color: var(--text-muted); max-width: 190px; box-shadow: 0 0 10px rgba(26,211,220,0.2); z-index: 5; pointer-events: none; }
-.tiny-terminal { font-family: inherit; line-height: 1.4; color: var(--text-primary); }
-.sub-header { font-weight: bold; font-size: 9px; color: var(--text-primary); margin-bottom: 6px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.4); }
+.viewport-hud { position: absolute; top: 35px; left: 15px; font-size: 13px; color: var(--text-primary); text-shadow: 0 0 5px var(--border-glow); z-index: 5; pointer-events: none; }
+.viewport-stats { position: absolute; top: 35px; right: 15px; font-size: 12px; color: var(--text-primary); text-align: right; text-shadow: 0 0 5px var(--border-glow); z-index: 5; pointer-events: none; }
+.orbital-telemetry-panel { position: absolute; bottom: 15px; left: 15px; background: rgba(2, 6, 7, 0.95); border: 1px solid var(--border-color); padding: 10px; font-size: 10px; color: var(--text-muted); max-width: 220px; box-shadow: 0 0 10px rgba(26,211,220,0.2); z-index: 5; pointer-events: none; }
+.tiny-terminal { font-family: inherit; line-height: 1.5; color: var(--text-primary); }
+.sub-header { font-weight: bold; font-size: 11px; color: var(--text-primary); margin-bottom: 6px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.6); }
 
 /* Targeting Reticle Graphics */
 .scanning-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
@@ -116,31 +120,31 @@ body {
 
 /* Formatted Audit Log */
 .metrics-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); background: rgba(4, 12, 14, 0.6); }
-.metric { padding: 8px 12px; font-size: 14px; font-weight: bold; }
+.metric { padding: 10px 12px; font-size: 15px; font-weight: bold; }
 .status-secure { color: var(--accent-secure); text-shadow: 0 0 10px rgba(57,255,150,0.6); }
 .status-alert { color: var(--accent-alert); text-shadow: 0 0 10px rgba(255,82,82,0.6); }
 .status-warn { color: var(--accent-warn); text-shadow: 0 0 10px rgba(255,196,54,0.6); }
 
-#audit-log-list { list-style: none; padding: 8px 12px; margin: 0; overflow-y: auto; font-size: 11px; flex-grow: 1; line-height: 1.5; color: var(--text-primary); }
-#audit-log-list li { margin-bottom: 5px; text-shadow: 0 0 4px rgba(255,255,255,0.2); }
+#audit-log-list { list-style: none; padding: 10px 12px; margin: 0; overflow-y: auto; font-size: 12px; flex-grow: 1; line-height: 1.5; color: var(--text-primary); }
+#audit-log-list li { margin-bottom: 6px; text-shadow: 0 0 4px rgba(255,255,255,0.3); }
 
 /* Swarm Node Matrix Interface */
 .swarm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; flex-grow: 1; align-content: center; justify-items: center; }
-.node { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-secure); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; background: rgba(57, 255, 150, 0.08); box-shadow: 0 0 15px rgba(57, 255, 150, 0.3); transition: all 0.3s; text-shadow: 0 0 5px var(--accent-secure); }
-.node .node-label { font-size: 8px; opacity: 0.9; font-weight: normal; margin-top: 3px; }
+.node { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--accent-secure); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; background: rgba(57, 255, 150, 0.08); box-shadow: 0 0 15px rgba(57, 255, 150, 0.3); transition: all 0.3s; text-shadow: 0 0 5px var(--accent-secure); }
+.node .node-label { font-size: 9px; opacity: 0.9; font-weight: normal; margin-top: 3px; }
 .node.compromised { border-color: var(--accent-alert); background: rgba(255, 82, 82, 0.15); box-shadow: 0 0 20px rgba(255, 82, 82, 0.5); text-shadow: 0 0 5px var(--accent-alert); }
 .node.isolated { border-color: var(--text-muted); background: rgba(136, 136, 136, 0.1); border-style: dashed; box-shadow: none; text-shadow: none; }
 
 /* Neurological Diagnostics Displays */
-.bci-header-data { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; color: var(--text-primary); }
-.small-text { font-size: 10px; font-weight: bold; }
+.bci-header-data { display: flex; justify-content: space-between; padding: 8px 12px; font-size: 12px; color: var(--text-primary); }
+.small-text { font-size: 11px; font-weight: bold; }
 .wave-viewer { height: 80px; border-bottom: 1px solid var(--border-color); background: rgba(2,6,7,0.8); position: relative; }
 .wave-viewer canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-.metric-title { padding: 8px 12px 4px 12px; font-size: 11px; color: var(--text-primary); }
-.bci-bar-container { margin: 4px 12px; height: 10px; background: #040c0e; border-radius: 5px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: inset 0 0 5px rgba(0,0,0,1); }
+.metric-title { padding: 8px 12px 4px 12px; font-size: 12px; color: var(--text-primary); }
+.bci-bar-container { margin: 4px 12px; height: 12px; background: #040c0e; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: inset 0 0 5px rgba(0,0,0,1); }
 .bci-bar { height: 100%; width: 20%; background: var(--accent-secure); box-shadow: 0 0 10px var(--accent-secure); transition: width 0.3s, background 0.3s; }
-.bci-footer-data { padding: 8px 12px; display: flex; justify-content: space-between; font-size: 11px; border-top: 1px solid var(--border-color); }
-.bci-telemetry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 15px; font-size: 9px; color: var(--text-primary); }
+.bci-footer-data { padding: 8px 12px; display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid var(--border-color); }
+.bci-telemetry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 15px; font-size: 10px; color: var(--text-primary); }
 
 /* Drift Graph Layout */
 .drift-viewer { height: 70px; border-bottom: 1px solid var(--border-color); background: rgba(2,6,7,0.8); position: relative; }
@@ -148,13 +152,13 @@ body {
 
 .gauges-grid { display: flex; justify-content: space-around; padding: 12px; background: rgba(4,12,14,0.5); }
 .gauge { display: flex; flex-direction: column; align-items: center; width: 25%; }
-.gauge-bar { width: 6px; height: 40px; background: #040c0e; position: relative; border-radius: 3px; border: 1px solid var(--border-color); }
-.gauge-bar::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: calc(var(--value) * 1%); background: var(--border-glow); border-radius: 2px; box-shadow: 0 0 8px var(--border-glow); }
-.gauge-label { font-size: 9px; margin-top: 6px; color: var(--text-primary); font-weight: bold; }
+.gauge-bar { width: 8px; height: 45px; background: #040c0e; position: relative; border-radius: 4px; border: 1px solid var(--border-color); }
+.gauge-bar::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: calc(var(--value) * 1%); background: var(--border-glow); border-radius: 3px; box-shadow: 0 0 8px var(--border-glow); }
+.gauge-label { font-size: 10px; margin-top: 6px; color: var(--text-primary); font-weight: bold; }
 
 /* Footer & Interlocking Controls */
 #control-rail { grid-row: 2; grid-column: 1 / 4; flex-direction: row; align-items: center; justify-content: flex-start; padding: 0 15px; gap: 15px; background: #030a0b; box-shadow: 0 -5px 20px rgba(0,0,0,0.6); }
 
-button { background: #06181a; color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 20px; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.2s; box-shadow: inset 0 0 8px rgba(26,211,220,0.15), 0 0 5px rgba(0,0,0,0.5); }
+button { background: #06181a; color: var(--text-primary); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.2s; box-shadow: inset 0 0 8px rgba(26,211,220,0.15), 0 0 5px rgba(0,0,0,0.5); }
 button:hover { background: #0a2629; border-color: var(--border-glow); box-shadow: 0 0 15px rgba(26,211,220,0.4), inset 0 0 10px rgba(26,211,220,0.2); text-shadow: 0 0 5px #fff; }
 button:active { background: var(--accent-alert); color: #fff; border-color: var(--accent-alert); box-shadow: 0 0 20px rgba(255, 82, 82, 0.6); }
