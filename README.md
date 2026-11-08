@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="hero.png" alt="Zero-Trust Spacetime Audit Dashboard Hero Image" width="100%">
+</p>
+
 # Zero-Trust Spacetime Audit Dashboard
 
 A live, full-stack WebGL command center built to monitor spacecraft telemetry, visualize non-linear orbital dynamics, and audit post-quantum cryptographic (PQC) link security in real-time.
