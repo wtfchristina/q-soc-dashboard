@@ -3,24 +3,21 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-const physicsPanel = document.querySelector('.physics-panel');
-const container = document.createElement('div');
-container.id = 'three-container';
-physicsPanel.insertBefore(container, physicsPanel.firstChild);
+// FIXED: Clean DOM targeting
+const container = document.getElementById('three-container');
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, physicsPanel.clientWidth / physicsPanel.clientHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(physicsPanel.clientWidth, physicsPanel.clientHeight);
+renderer.setSize(container.clientWidth, container.clientHeight);
 container.appendChild(renderer.domElement);
 
 const renderScene = new RenderPass(scene, camera);
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(physicsPanel.clientWidth, physicsPanel.clientHeight), 1.8, 0.4, 0.85);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 1.8, 0.4, 0.85);
 bloomPass.threshold = 0.0; bloomPass.strength = 2.0; bloomPass.radius = 0.8;
 const composer = new EffectComposer(renderer);
 composer.addPass(renderScene); composer.addPass(bloomPass);
 
-// INCREASE GLOBE SIZE TO MEET THE ORBIT NATURALLY
 const geometry = new THREE.SphereGeometry(3.0, 48, 48);
 const material = new THREE.MeshBasicMaterial({ color: 0x13383a, wireframe: true });
 const blackHole = new THREE.Mesh(geometry, material);
@@ -41,14 +38,13 @@ const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff, linewidth: 2 });
 const pinnTrail = new THREE.Line(pinnGeo, pinnMat);
 scene.add(pinnTrail);
 
-// PULL CAMERA BACK TO FIT LARGER GLOBE
 camera.position.z = 8.5;
 
 function resizeThree() {
-    camera.aspect = physicsPanel.clientWidth / physicsPanel.clientHeight;
+    camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(physicsPanel.clientWidth, physicsPanel.clientHeight);
-    composer.setSize(physicsPanel.clientWidth, physicsPanel.clientHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    composer.setSize(container.clientWidth, container.clientHeight);
 }
 window.addEventListener('resize', resizeThree);
 
@@ -164,7 +160,6 @@ ws.onmessage = (event) => {
         const data = JSON.parse(event.data); if (isAlertState) return;
         if (data.phys_pos && data.pinn_pos) {
             
-            // REMOVED MULTIPLIER: Use raw coordinates natively so they wrap correctly
             for (let i = (maxPoints - 1) * 3; i >= 3; i--) { 
                 physPositions[i] = physPositions[i - 3]; 
                 pinnPositions[i] = pinnPositions[i - 3]; 

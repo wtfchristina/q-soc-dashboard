@@ -27,7 +27,11 @@
     </div>
 
     <div class="dashboard-grid">
-        <main id="three-container" class="panel physics-panel">
+        <!-- FIXED: Removed id="three-container" from the main grid panel -->
+        <main class="panel physics-panel">
+            <!-- Added dedicated absolute container for Three.js -->
+            <div id="three-container"></div>
+            
             <header class="panel-header">KERR GEODESIC: PHYSICS <span class="grn">(GRN)</span> VS PINN <span class="blu">(BLU)</span></header>
             <div class="viewport-hud">
                 <div>APO: ~1.5M km</div>
