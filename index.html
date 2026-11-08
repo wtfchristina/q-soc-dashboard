@@ -16,11 +16,16 @@
         <div>LOCAL: <span class="green">OK</span></div>
         <div>TIME: UTC</div>
         <div>SYSTEM: <span class="cyan">WSS</span></div>
-        <div>MSS-L/OBR: <span class="green">0.06</span></div>
+        <div>MSS-L/OBR: <span class="cyan">0.06</span></div>
         <div>SYYR: 8.04</div>
         <div>MPCR: 2.3 ma</div>
         <div>Syc: MTRIC: 0.00</div>
     </header>
+
+    <!-- Main Title -->
+    <div class="main-title-container">
+        <h1 class="main-title">ZERO-TRUST SPACETIME AUDIT DASHBOARD <span class="title-sub">[ORBITAL DATA FEED - LIVE]</span></h1>
+    </div>
 
     <div class="dashboard-grid">
         <!-- Col 1: 3D PINN vs Physics -->
@@ -30,6 +35,7 @@
             </header>
             <div class="viewport-hud">
                 <div>APO: ~1.5M km</div>
+                <div>APO: -1.5M km</div>
                 <div>VEL: 11.2 km/s</div>
             </div>
             <div class="viewport-stats">
@@ -38,32 +44,38 @@
                 <div>Y: 1.9338</div>
                 <div>Z: 0.0009</div>
             </div>
-            <div class="orbital-telemetry-panel">
-                <div class="sub-header">ASTRO/IC-IWM SPCCS</div>
-                <div class="tiny-terminal">
-                    [01:55:56] Ingesting orbital telemetry...<br>
-                    [01:55:56] Active trajectory calculation...<br>
-                    [01:55:56] Physics validation ongoing...<br>
-                    [01:55:56] Syncing with target matrices...<br>
-                    [01:55:56] Neural networks converging...
+            
+            <div class="bottom-overlays">
+                <div class="orbital-telemetry-panel">
+                    <div class="sub-header">ASTRO/IC-IWM SPCCS</div>
+                    <div class="tiny-terminal">
+                        [01:55:56] Ingesting orbital telemetry...<br>
+                        [01:55:56] Active trajectory calculation...<br>
+                        [01:55:56] Physics validation ongoing...<br>
+                        [01:55:56] Syncing with target matrices...<br>
+                        [01:55:56] Neural networks converging...
+                    </div>
+                </div>
+                <div class="radar-container">
+                    <canvas id="radar-canvas"></canvas>
+                </div>
+                <div class="telemetry-bar-chart">
+                    <div class="bar-grid">
+                        <div class="bar" style="height: 40%"></div>
+                        <div class="bar" style="height: 60%"></div>
+                        <div class="bar" style="height: 80%"></div>
+                        <div class="bar" style="height: 50%"></div>
+                        <div class="bar" style="height: 90%"></div>
+                        <div class="bar" style="height: 30%"></div>
+                    </div>
                 </div>
             </div>
+
             <div class="scanning-hud">
                 <div class="target-crosshair top-left"></div>
                 <div class="target-crosshair top-right"></div>
                 <div class="target-crosshair bottom-left"></div>
                 <div class="target-crosshair bottom-right"></div>
-                <div class="crosshair-center"></div>
-            </div>
-            <div class="telemetry-bar-chart">
-                <div class="sub-header">SCANNING MATRIX DATA</div>
-                <div class="bar-grid">
-                    <div class="bar" style="height: 40%"></div>
-                    <div class="bar" style="height: 60%"></div>
-                    <div class="bar" style="height: 80%"></div>
-                    <div class="bar" style="height: 50%"></div>
-                    <div class="bar" style="height: 90%"></div>
-                </div>
             </div>
         </main>
 
@@ -75,7 +87,12 @@
                     <div id="qber-meter" class="metric">QBER: <span>0.95%</span></div>
                     <div id="crypto-state" class="metric status-secure">State: SECURE</div>
                 </div>
-                <ul id="audit-log-list"></ul>
+                <div class="audit-body">
+                    <ul id="audit-log-list"></ul>
+                    <div class="audit-graphs">
+                        <canvas id="audit-graph-canvas"></canvas>
+                    </div>
+                </div>
             </aside>
             <aside id="swarm-panel" class="panel">
                 <header class="panel-header">AEGIS-SWARM CONSENSUS</header>
@@ -102,33 +119,35 @@
                 </div>
                 <div class="bci-footer-data">
                     <div id="bci-status" class="status-secure">NOMINAL</div>
-                    <div class="bci-telemetry-grid">
-                        <div>Lide Data: 506</div>
-                        <div>Hoie Data: 100.20</div>
-                        <div>Stress: 38000</div>
-                        <div>Stress: 30.22</div>
+                    <div class="status-alert small-text">LIVE</div>
+                </div>
+                <div class="bci-telemetry-grid">
+                    <div>Lide Data: 506</div>
+                    <div>Hoie Data: 100.20</div>
+                    <div>Stress: 38000</div>
+                    <div>Stress: 30.22</div>
+                </div>
+                
+                <div class="dual-mini-charts">
+                    <div class="mini-chart">
+                        <div class="mini-title">STRESS <span class="status-alert">LIVE</span></div>
+                        <div class="mini-canvas-wrap"><canvas id="stress-canvas"></canvas></div>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="mini-title">Cognitive Frequency</div>
+                        <div class="mini-canvas-wrap"><canvas id="freq-canvas"></canvas></div>
                     </div>
                 </div>
             </aside>
+            
             <aside id="oscilloscope-panel" class="panel">
                 <header class="panel-header">SYMPLECTIC ENERGY DRIFT</header>
                 <div id="energy-metric" class="metric">Drift: <span>0.99999996</span></div>
                 <div class="drift-viewer">
                     <canvas id="drift-canvas"></canvas>
                 </div>
-                <div class="gauges-grid">
-                    <div class="gauge">
-                        <div class="gauge-bar" style="--value: 70;"></div>
-                        <div class="gauge-label">BETA</div>
-                    </div>
-                    <div class="gauge">
-                        <div class="gauge-bar" style="--value: 40;"></div>
-                        <div class="gauge-label">GAMMA</div>
-                    </div>
-                    <div class="gauge">
-                        <div class="gauge-bar" style="--value: 20;"></div>
-                        <div class="gauge-label">ERROR</div>
-                    </div>
+                <div class="dial-gauges">
+                    <canvas id="gauges-canvas"></canvas>
                 </div>
             </aside>
         </div>
@@ -141,7 +160,6 @@
         </footer>
     </div>
     
-    <!-- NEW: Added Three.js Addons map for post-processing -->
     <script type="importmap">
     { 
         "imports": { 
