@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+// 1. Three.js Setup (Physics vs PINN)
 const container = document.getElementById('three-container');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -13,14 +14,23 @@ const blackHole = new THREE.Mesh(geometry, material);
 scene.add(blackHole);
 camera.position.z = 10;
 
-// NEW: Orbital Trajectory Trail
+// Trajectory 1: Ground Truth Physics (Green)
 const maxPoints = 150;
-const positions = new Float32Array(maxPoints * 3);
-const trailGeometry = new THREE.BufferGeometry();
-trailGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-const trailMaterial = new THREE.LineBasicMaterial({ color: 0x00ff66 });
-const trail = new THREE.Line(trailGeometry, trailMaterial);
-scene.add(trail);
+const physPositions = new Float32Array(maxPoints * 3);
+const physGeo = new THREE.BufferGeometry();
+physGeo.setAttribute('position', new THREE.BufferAttribute(physPositions, 3));
+const physMat = new THREE.LineBasicMaterial({ color: 0x00ff66 });
+const physTrail = new THREE.Line(physGeo, physMat);
+scene.add(physTrail);
+
+// Trajectory 2: PINN Prediction (Blue)
+const pinnPositions = new Float32Array(maxPoints * 3);
+const pinnGeo = new THREE.BufferGeometry();
+pinnGeo.setAttribute('position', new THREE.BufferAttribute(pinnPositions, 3));
+const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff });
+const pinnTrail = new THREE.Line(pinnGeo, pinnMat);
+scene.add(pinnTrail);
+
 let pointCount = 0;
 
 window.addEventListener('resize', () => {
@@ -31,105 +41,115 @@ window.addEventListener('resize', () => {
 
 function animate() {
     requestAnimationFrame(animate);
-    blackHole.rotation.y += 0.005;
-    blackHole.rotation.x += 0.002; 
+    blackHole.rotation.y += 0.005; blackHole.rotation.x += 0.002;
     renderer.render(scene, camera);
 }
 animate();
 
+// 2. Swarm Node Setup
+const swarmGrid = document.getElementById('swarm-grid');
+const nodes = [];
+for(let i=1; i<=6; i++) {
+    const el = document.createElement('div');
+    el.className = 'node';
+    el.textContent = `N-${i}`;
+    swarmGrid.appendChild(el);
+    nodes.push(el);
+}
+
+// 3. WebSocket Data Pipeline
 const logList = document.getElementById('audit-log-list');
 const cryptoState = document.getElementById('crypto-state');
-const qberValue = document.querySelector('#qber-meter span');
-const driftValue = document.querySelector('#energy-metric span');
+const bciBar = document.getElementById('bci-stress-bar');
+const bciStatus = document.getElementById('bci-status');
 
-function logAudit(message, isAlert = false) {
+function logAudit(msg, color = '') {
     const li = document.createElement('li');
-    li.textContent = `[${new Date().toISOString().split('T')[1].slice(0,-1)}] ${message}`;
-    if (isAlert) li.style.color = 'var(--accent-alert)';
+    li.textContent = `[${new Date().toISOString().split('T')[1].slice(0,-1)}] ${msg}`;
+    if (color) li.style.color = `var(--accent-${color})`;
     logList.prepend(li);
     if (logList.children.length > 20) logList.lastChild.remove();
 }
 
-let isAlertState = false;
-const ws = new WebSocket('ws://0.0.0.0:8766');
+// Option B Cloud Prep: This URL will become an environment variable during deployment.
+const ws = new WebSocket('ws://0.0.0.0:8766'); 
 
-ws.onopen = () => {
-    logAudit('WebSocket connected. Listening for CCSDS telemetry...');
-    cryptoState.textContent = 'State: VERIFIED_FIPS_204';
-    cryptoState.className = 'metric status-secure';
-};
+let isAlertState = false;
+
+ws.onopen = () => { logAudit('WS Connected. Multi-modal telemetry nominal.', 'secure'); };
 
 ws.onmessage = (event) => {
     try {
         const data = JSON.parse(event.data);
-        
-        // NEW: Update 3D Trajectory
-        if (data.position && !isAlertState) {
-            const [x, y, z] = data.position;
+        if (isAlertState) return;
+
+        // Update 3D Orbits
+        if (data.phys_pos && data.pinn_pos) {
             for (let i = (maxPoints - 1) * 3; i >= 3; i--) {
-                positions[i] = positions[i - 3];
+                physPositions[i] = physPositions[i - 3];
+                pinnPositions[i] = pinnPositions[i - 3];
             }
-            positions[0] = x;
-            positions[1] = y;
-            positions[2] = z;
+            physPositions[0] = data.phys_pos[0]; physPositions[1] = data.phys_pos[1]; physPositions[2] = data.phys_pos[2];
+            pinnPositions[0] = data.pinn_pos[0]; pinnPositions[1] = data.pinn_pos[1]; pinnPositions[2] = data.pinn_pos[2];
             pointCount = Math.min(pointCount + 1, maxPoints);
-            trailGeometry.setDrawRange(0, pointCount);
-            trailGeometry.attributes.position.needsUpdate = true;
+            physGeo.setDrawRange(0, pointCount); pinnGeo.setDrawRange(0, pointCount);
+            physGeo.attributes.position.needsUpdate = true; pinnGeo.attributes.position.needsUpdate = true;
         }
 
-        if (data.qber !== undefined && !isAlertState) {
-            qberValue.textContent = (data.qber * 100).toFixed(2) + '%';
-        }
-        
-        // NEW: Update Energy Drift
-        if (data.drift !== undefined && !isAlertState) {
-            driftValue.textContent = data.drift.toFixed(8);
+        // Update BCI
+        if (data.bci_stress !== undefined) {
+            const stressPct = data.bci_stress * 100;
+            bciBar.style.width = `${stressPct}%`;
+            bciBar.style.background = stressPct > 70 ? 'var(--accent-alert)' : 'var(--accent-secure)';
         }
 
-    } catch (e) {
-        console.error("Payload parsing error:", e);
-    }
+        document.querySelector('#qber-meter span').textContent = (data.qber * 100).toFixed(2) + '%';
+        document.querySelector('#energy-metric span').textContent = data.drift.toFixed(8);
+
+    } catch (e) { console.error(e); }
 };
 
-ws.onclose = () => logAudit('Connection to telemetry daemon lost.', true);
-
-// NEW: Hardware-in-the-loop Interactions
+// 4. Fault Injections
 document.getElementById('btn-qber').addEventListener('click', () => {
-    if (isAlertState) return;
-    isAlertState = true;
-    logAudit('INJECT: Forcing QBER spike. Potential ISL eavesdropping detected...', true);
-    qberValue.textContent = '14.82%';
-    qberValue.style.color = 'var(--accent-alert)';
-    cryptoState.textContent = 'State: RE-KEYING';
-    cryptoState.className = 'metric status-alert';
-    trailMaterial.color.setHex(0xff3333);
+    if (isAlertState) return; isAlertState = true;
+    logAudit('QBER SPIKE: Eavesdropping attempt on ISL.', 'alert');
+    bciBar.style.width = '95%'; bciBar.style.background = 'var(--accent-alert)';
+    bciStatus.textContent = 'Status: HIGH COGNITIVE LOAD'; bciStatus.className = 'metric status-alert';
+    cryptoState.textContent = 'State: RE-KEYING PQC'; cryptoState.className = 'metric status-alert';
+    physMat.color.setHex(0xff3333); pinnMat.color.setHex(0xff3333);
     
     setTimeout(() => {
-        logAudit('RECOVERY: Ephemeral memory zeroized. PQC Link secured.');
-        qberValue.style.color = '';
-        cryptoState.textContent = 'State: VERIFIED_FIPS_204';
-        cryptoState.className = 'metric status-secure';
-        trailMaterial.color.setHex(0x00ff66);
+        logAudit('RECOVERY: PQC key regenerated. Pilot stress normalizing.', 'secure');
+        bciStatus.textContent = 'Status: NOMINAL'; bciStatus.className = 'metric status-secure';
+        cryptoState.textContent = 'State: SECURE'; cryptoState.className = 'metric status-secure';
+        physMat.color.setHex(0x00ff66); pinnMat.color.setHex(0x00bbff);
         isAlertState = false;
     }, 4000);
 });
 
 document.getElementById('btn-biquad').addEventListener('click', () => {
-    if (isAlertState) return;
-    isAlertState = true;
-    logAudit('INJECT: Biquad instability detected. Symplectic energy drifting...', true);
-    driftValue.textContent = '1.04928177';
-    driftValue.style.color = 'var(--accent-alert)';
-    trailMaterial.color.setHex(0xffaa00);
+    if (isAlertState) return; isAlertState = true;
+    logAudit('SWARM FAULT: Node-4 broadcasting Byzantine errors.', 'warn');
+    nodes[3].className = 'node compromised';
     
     setTimeout(() => {
-        logAudit('RECOVERY: Hamiltonian integrator stabilized.');
-        driftValue.style.color = '';
-        trailMaterial.color.setHex(0x00ff66);
-        isAlertState = false;
-    }, 4000);
+        logAudit('CONSENSUS: Node-4 isolated from Swarm.', 'secure');
+        nodes[3].className = 'node isolated';
+        setTimeout(() => {
+            logAudit('RECOVERY: Node-4 re-authenticated.', 'secure');
+            nodes[3].className = 'node';
+            isAlertState = false;
+        }, 2000);
+    }, 2000);
 });
 
-document.getElementById('btn-downgrade').addEventListener('click', () => {
-    logAudit('INJECT: Simulating cryptographic downgrade attack...', true);
+document.getElementById('btn-perturb').addEventListener('click', () => {
+    if (isAlertState) return; isAlertState = true;
+    logAudit('PHYSICS PERTURBATION: Gravity well anomaly detected.', 'warn');
+    ws.send(JSON.stringify({ command: 'perturb_pinn' })); // Tells backend to simulate PINN drift
+    
+    setTimeout(() => {
+        logAudit('PINN: Machine learning model converging to ground truth.', 'secure');
+        isAlertState = false;
+    }, 3000);
 });

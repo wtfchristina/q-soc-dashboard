@@ -2,34 +2,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zero-Trust Spacetime Audit</title>
+    <title>Zero-Trust Spacetime & Swarm Audit</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="dashboard-grid">
+        <!-- Col 1: 3D PINN vs Physics -->
         <main id="three-container" class="panel">
-            <header class="panel-header">Kerr Geodesic Worldline</header>
+            <header class="panel-header">Kerr Geodesic: Physics (Grn) vs PINN (Blu)</header>
         </main>
-        <aside id="audit-panel" class="panel">
-            <header class="panel-header">FIPS 204 PQC Audit Log</header>
-            <div id="qber-meter" class="metric">QBER: <span>0.00%</span></div>
-            <div id="crypto-state" class="metric status-secure">State: SECURE</div>
-            <ul id="audit-log-list"></ul>
-        </aside>
-        <aside id="oscilloscope-panel" class="panel">
-            <header class="panel-header">Symplectic Energy Drift</header>
-            <canvas id="oscilloscope-canvas"></canvas>
-            <div id="energy-metric" class="metric">Drift: <span>1.00000000</span></div>
-        </aside>
+
+        <!-- Col 2: Security & Swarm -->
+        <div class="col-stack">
+            <aside id="audit-panel" class="panel half-panel">
+                <header class="panel-header">FIPS 204 PQC Audit Log</header>
+                <div id="qber-meter" class="metric">QBER: <span>0.00%</span></div>
+                <div id="crypto-state" class="metric status-secure">State: SECURE</div>
+                <ul id="audit-log-list"></ul>
+            </aside>
+            <aside id="swarm-panel" class="panel half-panel">
+                <header class="panel-header">Aegis-Swarm Consensus</header>
+                <div class="swarm-grid" id="swarm-grid">
+                    <!-- Nodes injected via JS -->
+                </div>
+            </aside>
+        </div>
+
+        <!-- Col 3: Neural & Energy Invariants -->
+        <div class="col-stack">
+            <aside id="bci-panel" class="panel half-panel">
+                <header class="panel-header">Neural Telemetry (Pilot BCI)</header>
+                <div class="metric">Cognitive Load (Alpha/Beta)</div>
+                <div class="bci-bar-container">
+                    <div id="bci-stress-bar" class="bci-bar"></div>
+                </div>
+                <div id="bci-status" class="metric status-secure">Status: NOMINAL</div>
+            </aside>
+            <aside id="oscilloscope-panel" class="panel half-panel">
+                <header class="panel-header">Symplectic Energy Drift</header>
+                <div id="energy-metric" class="metric">Drift: <span>1.00000000</span></div>
+            </aside>
+        </div>
+
+        <!-- Control Rail -->
         <footer id="control-rail" class="panel">
-            <button id="btn-qber">Force QBER Spike</button>
-            <button id="btn-biquad">Inject Biquad Instability</button>
-            <button id="btn-downgrade">Simulate Downgrade Attack</button>
+            <button id="btn-qber">Force Eavesdrop (QBER)</button>
+            <button id="btn-biquad">Inject Node Fault (Swarm)</button>
+            <button id="btn-perturb">Perturb Gravity (PINN Drift)</button>
         </footer>
     </div>
-    <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
-    </script>
+    <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }</script>
     <script type="module" src="app.js"></script>
 </body>
 </html>
