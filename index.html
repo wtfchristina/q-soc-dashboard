@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZERO-TRUST SPACETIME AUDIT DASHBOARD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="glow-overlay"></div>
     <div class="scanlines"></div>
     
-    <!-- Utility Top Bar -->
     <header class="utility-bar">
         <div>SYSTEM: <span class="green">OK</span></div>
         <div>LOCAL: <span class="green">OK</span></div>
@@ -22,17 +22,13 @@
         <div>Syc: MTRIC: 0.00</div>
     </header>
 
-    <!-- Main Title -->
     <div class="main-title-container">
         <h1 class="main-title">ZERO-TRUST SPACETIME AUDIT DASHBOARD <span class="title-sub">[ORBITAL DATA FEED - LIVE]</span></h1>
     </div>
 
     <div class="dashboard-grid">
-        <!-- Col 1: 3D PINN vs Physics -->
         <main id="three-container" class="panel physics-panel">
-            <header class="panel-header">
-                KERR GEODESIC: PHYSICS <span class="grn">(GRN)</span> VS PINN <span class="blu">(BLU)</span>
-            </header>
+            <header class="panel-header">KERR GEODESIC: PHYSICS <span class="grn">(GRN)</span> VS PINN <span class="blu">(BLU)</span></header>
             <div class="viewport-hud">
                 <div>APO: ~1.5M km</div>
                 <div>APO: -1.5M km</div>
@@ -56,30 +52,22 @@
                         [01:55:56] Neural networks converging...
                     </div>
                 </div>
-                <div class="radar-container">
-                    <canvas id="radar-canvas"></canvas>
-                </div>
+                <div class="radar-container"><canvas id="radar-canvas"></canvas></div>
                 <div class="telemetry-bar-chart">
                     <div class="bar-grid">
-                        <div class="bar" style="height: 40%"></div>
-                        <div class="bar" style="height: 60%"></div>
-                        <div class="bar" style="height: 80%"></div>
-                        <div class="bar" style="height: 50%"></div>
-                        <div class="bar" style="height: 90%"></div>
-                        <div class="bar" style="height: 30%"></div>
+                        <div class="bar" style="height: 40%"></div><div class="bar" style="height: 60%"></div>
+                        <div class="bar" style="height: 80%"></div><div class="bar" style="height: 50%"></div>
+                        <div class="bar" style="height: 90%"></div><div class="bar" style="height: 30%"></div>
                     </div>
                 </div>
             </div>
 
             <div class="scanning-hud">
-                <div class="target-crosshair top-left"></div>
-                <div class="target-crosshair top-right"></div>
-                <div class="target-crosshair bottom-left"></div>
-                <div class="target-crosshair bottom-right"></div>
+                <div class="target-crosshair top-left"></div><div class="target-crosshair top-right"></div>
+                <div class="target-crosshair bottom-left"></div><div class="target-crosshair bottom-right"></div>
             </div>
         </main>
 
-        <!-- Col 2: Security & Swarm -->
         <div class="col-stack">
             <aside id="audit-panel" class="panel">
                 <header class="panel-header">FIPS 204 PQC AUDIT LOG</header>
@@ -89,45 +77,32 @@
                 </div>
                 <div class="audit-body">
                     <ul id="audit-log-list"></ul>
-                    <div class="audit-graphs">
-                        <canvas id="audit-graph-canvas"></canvas>
-                    </div>
+                    <div class="audit-graphs"><canvas id="audit-graph-canvas"></canvas></div>
                 </div>
             </aside>
             <aside id="swarm-panel" class="panel">
                 <header class="panel-header">AEGIS-SWARM CONSENSUS</header>
-                <div class="swarm-grid" id="swarm-grid">
-                    <!-- Nodes injected via JS -->
-                </div>
+                <div class="swarm-grid" id="swarm-grid"></div>
             </aside>
         </div>
 
-        <!-- Col 3: Neural & Energy Invariants -->
         <div class="col-stack">
             <aside id="bci-panel" class="panel">
                 <header class="panel-header">NEURAL TELEMETRY (PILOT BCI)</header>
                 <div class="bci-header-data">
-                    <div>EEG Wave</div>
-                    <div class="status-secure small-text">LIVE</div>
+                    <div>EEG Wave</div><div class="status-secure small-text">LIVE</div>
                 </div>
-                <div class="wave-viewer">
-                    <canvas id="eeg-canvas"></canvas>
-                </div>
+                <div class="wave-viewer"><canvas id="eeg-canvas"></canvas></div>
                 <div class="metric-title">Cognitive Load (Alpha/Beta)</div>
-                <div class="bci-bar-container">
-                    <div id="bci-stress-bar" class="bci-bar"></div>
-                </div>
+                <div class="bci-bar-container"><div id="bci-stress-bar" class="bci-bar"></div></div>
                 <div class="bci-footer-data">
                     <div id="bci-status" class="status-secure">NOMINAL</div>
                     <div class="status-alert small-text">LIVE</div>
                 </div>
                 <div class="bci-telemetry-grid">
-                    <div>Lide Data: 506</div>
-                    <div>Hoie Data: 100.20</div>
-                    <div>Stress: 38000</div>
-                    <div>Stress: 30.22</div>
+                    <div>Lide Data: 506</div><div>Hoie Data: 100.20</div>
+                    <div>Stress: 38000</div><div>Stress: 30.22</div>
                 </div>
-                
                 <div class="dual-mini-charts">
                     <div class="mini-chart">
                         <div class="mini-title">STRESS <span class="status-alert">LIVE</span></div>
@@ -143,16 +118,11 @@
             <aside id="oscilloscope-panel" class="panel">
                 <header class="panel-header">SYMPLECTIC ENERGY DRIFT</header>
                 <div id="energy-metric" class="metric">Drift: <span>0.99999996</span></div>
-                <div class="drift-viewer">
-                    <canvas id="drift-canvas"></canvas>
-                </div>
-                <div class="dial-gauges">
-                    <canvas id="gauges-canvas"></canvas>
-                </div>
+                <div class="drift-viewer"><canvas id="drift-canvas"></canvas></div>
+                <div class="dial-gauges"><canvas id="gauges-canvas"></canvas></div>
             </aside>
         </div>
 
-        <!-- Control Rail -->
         <footer id="control-rail" class="panel">
             <button id="btn-qber">Force Eavesdrop (QBER)</button>
             <button id="btn-biquad">Inject Node Fault (Swarm)</button>
