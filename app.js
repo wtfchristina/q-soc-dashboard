@@ -8,18 +8,26 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
 container.appendChild(renderer.domElement);
 
+// Black Hole wireframe & accent orbital shell
 const geometry = new THREE.SphereGeometry(2, 32, 32);
-const material = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true });
+const material = new THREE.MeshBasicMaterial({ color: 0x13383a, wireframe: true });
 const blackHole = new THREE.Mesh(geometry, material);
 scene.add(blackHole);
-camera.position.z = 10;
+
+// Faint external grid accent
+const outerGeo = new THREE.SphereGeometry(2.05, 16, 16);
+const outerMat = new THREE.MeshBasicMaterial({ color: 0x0fa2a9, wireframe: true, transparent: true, opacity: 0.15 });
+const outerShell = new THREE.Mesh(outerGeo, outerMat);
+scene.add(outerShell);
+
+camera.position.z = 8.5;
 
 // Trajectory 1: Ground Truth Physics (Green)
-const maxPoints = 150;
+const maxPoints = 200;
 const physPositions = new Float32Array(maxPoints * 3);
 const physGeo = new THREE.BufferGeometry();
 physGeo.setAttribute('position', new THREE.BufferAttribute(physPositions, 3));
-const physMat = new THREE.LineBasicMaterial({ color: 0x00ff66 });
+const physMat = new THREE.LineBasicMaterial({ color: 0x26e680, linewidth: 2 });
 const physTrail = new THREE.Line(physGeo, physMat);
 scene.add(physTrail);
 
@@ -27,7 +35,7 @@ scene.add(physTrail);
 const pinnPositions = new Float32Array(maxPoints * 3);
 const pinnGeo = new THREE.BufferGeometry();
 pinnGeo.setAttribute('position', new THREE.BufferAttribute(pinnPositions, 3));
-const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff });
+const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff, linewidth: 1.5 });
 const pinnTrail = new THREE.Line(pinnGeo, pinnMat);
 scene.add(pinnTrail);
 
@@ -41,7 +49,9 @@ window.addEventListener('resize', () => {
 
 function animate() {
     requestAnimationFrame(animate);
-    blackHole.rotation.y += 0.005; blackHole.rotation.x += 0.002;
+    blackHole.rotation.y += 0.003; 
+    blackHole.rotation.x += 0.0015;
+    outerShell.rotation.y -= 0.001;
     renderer.render(scene, camera);
 }
 animate();
@@ -52,12 +62,98 @@ const nodes = [];
 for(let i=1; i<=6; i++) {
     const el = document.createElement('div');
     el.className = 'node';
-    el.textContent = `N-${i}`;
+    el.innerHTML = `N-${i} <div class="node-label">ONLINE</div>`;
     swarmGrid.appendChild(el);
     nodes.push(el);
 }
 
-// 3. WebSocket Data Pipeline
+// 3. EEG BCI Simulation
+const eegCanvas = document.getElementById('eeg-canvas');
+const eegCtx = eegCanvas.getContext('2d');
+eegCanvas.width = eegCanvas.parentElement.clientWidth;
+eegCanvas.height = 70;
+
+let eegData = Array(100).fill(35);
+let bciTargetStress = 0.2;
+let bciStress = 0.2;
+
+function animateEEG() {
+    requestAnimationFrame(animateEEG);
+    eegCtx.clearRect(0, 0, eegCanvas.width, eegCanvas.height);
+    
+    // Increment stress smoothly
+    bciStress += (bciTargetStress - bciStress) * 0.1;
+    
+    // Draw fine backdrop grid
+    eegCtx.strokeStyle = '#081c1f';
+    eegCtx.lineWidth = 0.5;
+    for (let x = 0; x < eegCanvas.width; x += 15) {
+        eegCtx.beginPath(); eegCtx.moveTo(x, 0); eegCtx.lineTo(x, eegCanvas.height); eegCtx.stroke();
+    }
+    for (let y = 0; y < eegCanvas.height; y += 15) {
+        eegCtx.beginPath(); eegCtx.moveTo(0, y); eegCtx.lineTo(eegCanvas.width, y); eegCtx.stroke();
+    }
+
+    // Update signal arrays
+    eegData.shift();
+    const noiseAmp = 5 + (bciStress * 15);
+    const frequencyFactor = 0.1 + (bciStress * 0.4);
+    const newVal = 35 + Math.sin(Date.now() * frequencyFactor) * noiseAmp + (Math.random() - 0.5) * 6;
+    eegData.push(newVal);
+
+    // Draw wave
+    eegCtx.beginPath();
+    eegCtx.lineWidth = 1.2;
+    eegCtx.strokeStyle = bciStress > 0.6 ? '#ff4545' : '#26e680';
+    for(let i = 0; i < eegData.length; i++) {
+        const x = (i / (eegData.length - 1)) * eegCanvas.width;
+        if(i === 0) eegCtx.moveTo(x, eegData[i]);
+        else eegCtx.lineTo(x, eegData[i]);
+    }
+    eegCtx.stroke();
+}
+animateEEG();
+
+// 4. Energy Drift Invariant Simulation
+const driftCanvas = document.getElementById('drift-canvas');
+const driftCtx = driftCanvas.getContext('2d');
+driftCanvas.width = driftCanvas.parentElement.clientWidth;
+driftCanvas.height = 60;
+
+let driftData = Array(120).fill(30);
+let driftAmplitudeTarget = 1;
+let driftAmplitude = 1;
+
+function animateDrift() {
+    requestAnimationFrame(animateDrift);
+    driftCtx.clearRect(0, 0, driftCanvas.width, driftCanvas.height);
+    
+    driftAmplitude += (driftAmplitudeTarget - driftAmplitude) * 0.05;
+
+    // Grid backdrop
+    driftCtx.strokeStyle = '#081c1f';
+    driftCtx.lineWidth = 0.5;
+    for (let x = 0; x < driftCanvas.width; x += 20) {
+        driftCtx.beginPath(); driftCtx.moveTo(x, 0); driftCtx.lineTo(x, driftCanvas.height); driftCtx.stroke();
+    }
+
+    driftData.shift();
+    const newVal = 30 + Math.sin(Date.now() * 0.005) * (5 * driftAmplitude) + Math.cos(Date.now() * 0.01) * (2 * driftAmplitude);
+    driftData.push(newVal);
+
+    driftCtx.beginPath();
+    driftCtx.lineWidth = 1;
+    driftCtx.strokeStyle = driftAmplitude > 3 ? '#e6b226' : '#0fa2a9';
+    for(let i = 0; i < driftData.length; i++) {
+        const x = (i / (driftData.length - 1)) * driftCanvas.width;
+        if(i === 0) driftCtx.moveTo(x, driftData[i]);
+        else driftCtx.lineTo(x, driftData[i]);
+    }
+    driftCtx.stroke();
+}
+animateDrift();
+
+// 5. WebSocket Data Pipeline & Security Events
 const logList = document.getElementById('audit-log-list');
 const cryptoState = document.getElementById('crypto-state');
 const bciBar = document.getElementById('bci-stress-bar');
@@ -71,7 +167,6 @@ function logAudit(msg, color = '') {
     if (logList.children.length > 20) logList.lastChild.remove();
 }
 
-// Connected to your live Render backend
 const ws = new WebSocket('wss://q-soc-daemon.onrender.com'); 
 
 let isAlertState = false;
@@ -96,9 +191,10 @@ ws.onmessage = (event) => {
             physGeo.attributes.position.needsUpdate = true; pinnGeo.attributes.position.needsUpdate = true;
         }
 
-        // Update BCI
+        // Update BCI stress target 
         if (data.bci_stress !== undefined) {
-            const stressPct = data.bci_stress * 100;
+            bciTargetStress = data.bci_stress;
+            const stressPct = bciStress * 100;
             bciBar.style.width = `${stressPct}%`;
             bciBar.style.background = stressPct > 70 ? 'var(--accent-alert)' : 'var(--accent-secure)';
         }
@@ -109,20 +205,22 @@ ws.onmessage = (event) => {
     } catch (e) { console.error(e); }
 };
 
-// 4. Fault Injections
+// Fault Injections
 document.getElementById('btn-qber').addEventListener('click', () => {
     if (isAlertState) return; isAlertState = true;
     logAudit('QBER SPIKE: Eavesdropping attempt on ISL.', 'alert');
+    bciTargetStress = 0.95;
     bciBar.style.width = '95%'; bciBar.style.background = 'var(--accent-alert)';
-    bciStatus.textContent = 'Status: HIGH COGNITIVE LOAD'; bciStatus.className = 'metric status-alert';
-    cryptoState.textContent = 'State: RE-KEYING PQC'; cryptoState.className = 'metric status-alert';
-    physMat.color.setHex(0xff3333); pinnMat.color.setHex(0xff3333);
+    bciStatus.textContent = 'HIGH LOAD'; bciStatus.className = 'status-alert';
+    cryptoState.textContent = 'RE-KEYING PQC'; cryptoState.className = 'metric status-alert';
+    physMat.color.setHex(0xff4545); pinnMat.color.setHex(0xff4545);
     
     setTimeout(() => {
         logAudit('RECOVERY: PQC key regenerated. Pilot stress normalizing.', 'secure');
-        bciStatus.textContent = 'Status: NOMINAL'; bciStatus.className = 'metric status-secure';
-        cryptoState.textContent = 'State: SECURE'; cryptoState.className = 'metric status-secure';
-        physMat.color.setHex(0x00ff66); pinnMat.color.setHex(0x00bbff);
+        bciTargetStress = 0.2;
+        bciStatus.textContent = 'NOMINAL'; bciStatus.className = 'status-secure';
+        cryptoState.textContent = 'SECURE'; cryptoState.className = 'metric status-secure';
+        physMat.color.setHex(0x26e680); pinnMat.color.setHex(0x00bbff);
         isAlertState = false;
     }, 4000);
 });
@@ -131,13 +229,16 @@ document.getElementById('btn-biquad').addEventListener('click', () => {
     if (isAlertState) return; isAlertState = true;
     logAudit('SWARM FAULT: Node-4 broadcasting Byzantine errors.', 'warn');
     nodes[3].className = 'node compromised';
+    nodes[3].innerHTML = `N-4 <div class="node-label">FAULT</div>`;
     
     setTimeout(() => {
         logAudit('CONSENSUS: Node-4 isolated from Swarm.', 'secure');
         nodes[3].className = 'node isolated';
+        nodes[3].innerHTML = `N-4 <div class="node-label">ISOLATED</div>`;
         setTimeout(() => {
             logAudit('RECOVERY: Node-4 re-authenticated.', 'secure');
             nodes[3].className = 'node';
+            nodes[3].innerHTML = `N-4 <div class="node-label">ONLINE</div>`;
             isAlertState = false;
         }, 2000);
     }, 2000);
@@ -146,10 +247,12 @@ document.getElementById('btn-biquad').addEventListener('click', () => {
 document.getElementById('btn-perturb').addEventListener('click', () => {
     if (isAlertState) return; isAlertState = true;
     logAudit('PHYSICS PERTURBATION: Gravity well anomaly detected.', 'warn');
-    ws.send(JSON.stringify({ command: 'perturb_pinn' })); // Tells backend to simulate PINN drift
+    ws.send(JSON.stringify({ command: 'perturb_pinn' }));
+    driftAmplitudeTarget = 5;
     
     setTimeout(() => {
         logAudit('PINN: Machine learning model converging to ground truth.', 'secure');
+        driftAmplitudeTarget = 1;
         isAlertState = false;
-    }, 3000);
+    }, 4000);
 });

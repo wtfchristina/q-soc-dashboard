@@ -1,27 +1,84 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zero-Trust Spacetime & Swarm Audit</title>
+    <title>ZERO-TRUST SPACETIME AUDIT DASHBOARD</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="glow-overlay"></div>
+    <div class="scanlines"></div>
+    
+    <!-- Utility Top Bar -->
+    <header class="utility-bar">
+        <div>SYSTEM: <span class="green">OK</span></div>
+        <div>LOCAL: <span class="green">OK</span></div>
+        <div>TIME: UTC</div>
+        <div>SYSTEM: <span class="cyan">WSS</span></div>
+        <div>MSS-L/OBR: <span class="green">0.06</span></div>
+        <div>SYYR: 8.04</div>
+        <div>MPCR: 2.3 ma</div>
+        <div>Syc: MTRIC: 0.00</div>
+    </header>
+
     <div class="dashboard-grid">
         <!-- Col 1: 3D PINN vs Physics -->
-        <main id="three-container" class="panel">
-            <header class="panel-header">Kerr Geodesic: Physics (Grn) vs PINN (Blu)</header>
+        <main id="three-container" class="panel physics-panel">
+            <header class="panel-header">
+                KERR GEODESIC: PHYSICS <span class="grn">(GRN)</span> VS PINN <span class="blu">(BLU)</span>
+            </header>
+            <div class="viewport-hud">
+                <div>APO: ~1.5M km</div>
+                <div>VEL: 11.2 km/s</div>
+            </div>
+            <div class="viewport-stats">
+                <div>-2.82918</div>
+                <div>X: 1.3599</div>
+                <div>Y: 1.9338</div>
+                <div>Z: 0.0009</div>
+            </div>
+            <div class="orbital-telemetry-panel">
+                <div class="sub-header">ASTRO/IC-IWM SPCCS</div>
+                <div class="tiny-terminal">
+                    [01:55:56] Ingesting orbital telemetry...<br>
+                    [01:55:56] Active trajectory calculation...<br>
+                    [01:55:56] Physics validation ongoing...<br>
+                    [01:55:56] Syncing with target matrices...<br>
+                    [01:55:56] Neural networks converging...
+                </div>
+            </div>
+            <div class="scanning-hud">
+                <div class="target-crosshair top-left"></div>
+                <div class="target-crosshair top-right"></div>
+                <div class="target-crosshair bottom-left"></div>
+                <div class="target-crosshair bottom-right"></div>
+                <div class="crosshair-center"></div>
+            </div>
+            <div class="telemetry-bar-chart">
+                <div class="sub-header">SCANNING MATRIX DATA</div>
+                <div class="bar-grid">
+                    <div class="bar" style="height: 40%"></div>
+                    <div class="bar" style="height: 60%"></div>
+                    <div class="bar" style="height: 80%"></div>
+                    <div class="bar" style="height: 50%"></div>
+                    <div class="bar" style="height: 90%"></div>
+                </div>
+            </div>
         </main>
 
         <!-- Col 2: Security & Swarm -->
         <div class="col-stack">
-            <aside id="audit-panel" class="panel half-panel">
-                <header class="panel-header">FIPS 204 PQC Audit Log</header>
-                <div id="qber-meter" class="metric">QBER: <span>0.00%</span></div>
-                <div id="crypto-state" class="metric status-secure">State: SECURE</div>
+            <aside id="audit-panel" class="panel">
+                <header class="panel-header">FIPS 204 PQC AUDIT LOG</header>
+                <div class="metrics-row">
+                    <div id="qber-meter" class="metric">QBER: <span>0.95%</span></div>
+                    <div id="crypto-state" class="metric status-secure">State: SECURE</div>
+                </div>
                 <ul id="audit-log-list"></ul>
             </aside>
-            <aside id="swarm-panel" class="panel half-panel">
-                <header class="panel-header">Aegis-Swarm Consensus</header>
+            <aside id="swarm-panel" class="panel">
+                <header class="panel-header">AEGIS-SWARM CONSENSUS</header>
                 <div class="swarm-grid" id="swarm-grid">
                     <!-- Nodes injected via JS -->
                 </div>
@@ -30,17 +87,49 @@
 
         <!-- Col 3: Neural & Energy Invariants -->
         <div class="col-stack">
-            <aside id="bci-panel" class="panel half-panel">
-                <header class="panel-header">Neural Telemetry (Pilot BCI)</header>
-                <div class="metric">Cognitive Load (Alpha/Beta)</div>
+            <aside id="bci-panel" class="panel">
+                <header class="panel-header">NEURAL TELEMETRY (PILOT BCI)</header>
+                <div class="bci-header-data">
+                    <div>EEG Wave</div>
+                    <div class="status-secure small-text">LIVE</div>
+                </div>
+                <div class="wave-viewer">
+                    <canvas id="eeg-canvas"></canvas>
+                </div>
+                <div class="metric-title">Cognitive Load (Alpha/Beta)</div>
                 <div class="bci-bar-container">
                     <div id="bci-stress-bar" class="bci-bar"></div>
                 </div>
-                <div id="bci-status" class="metric status-secure">Status: NOMINAL</div>
+                <div class="bci-footer-data">
+                    <div id="bci-status" class="status-secure">NOMINAL</div>
+                    <div class="bci-telemetry-grid">
+                        <div>Lide Data: 506</div>
+                        <div>Hoie Data: 100.20</div>
+                        <div>Stress: 38000</div>
+                        <div>Stress: 30.22</div>
+                    </div>
+                </div>
             </aside>
-            <aside id="oscilloscope-panel" class="panel half-panel">
-                <header class="panel-header">Symplectic Energy Drift</header>
-                <div id="energy-metric" class="metric">Drift: <span>1.00000000</span></div>
+            <aside id="oscilloscope-panel" class="panel">
+                <header class="panel-header">SYMPLECTIC ENERGY DRIFT</header>
+                <div id="energy-metric" class="metric">Drift: <span>0.99999996</span></div>
+                <div class="drift-viewer">
+                    <canvas id="drift-canvas"></canvas>
+                </div>
+                <div class="gauges-grid">
+                    <div class="gauge">
+                        <div class="gauge-bar" style="--value: 70;"></div>
+                        <div class="gauge-label">BETA</div>
+                    </div>
+                    <div class="gauge">
+                        <div class="gauge-bar" style="--value: 40;"></div>
+                        <div class="gauge-label">GAMMA</div>
+                    </div>
+                    <div class="gauge">
+                        <div class="gauge-bar" style="--value: 20;"></div>
+                        <div class="gauge-label">ERROR</div>
+                    </div>
+                </div>
             </aside>
         </div>
 
