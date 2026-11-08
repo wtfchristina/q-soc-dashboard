@@ -17,8 +17,8 @@ bloomPass.threshold = 0.0; bloomPass.strength = 2.0; bloomPass.radius = 0.8;
 const composer = new EffectComposer(renderer);
 composer.addPass(renderScene); composer.addPass(bloomPass);
 
-// INCREASED DENSITY & SIZE
-const geometry = new THREE.SphereGeometry(2.5, 64, 64);
+// SMALLER GLOBE
+const geometry = new THREE.SphereGeometry(1.6, 32, 32);
 const material = new THREE.MeshBasicMaterial({ color: 0x13383a, wireframe: true });
 const blackHole = new THREE.Mesh(geometry, material);
 scene.add(blackHole);
@@ -38,7 +38,6 @@ const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff, linewidth: 2 });
 const pinnTrail = new THREE.Line(pinnGeo, pinnMat);
 scene.add(pinnTrail);
 
-// ZOOMED IN
 camera.position.z = 5.5;
 
 function resizeThree() {
@@ -90,8 +89,8 @@ function drawAuditGraphs() {
     auditCtx.clearRect(0, 0, auditCtx.canvas.width, auditCtx.canvas.height);
     auditCtx.strokeStyle = '#39ff96'; auditCtx.lineWidth = 1.5; auditOffset += 0.1;
     for(let g=0; g<3; g++) {
-        const yBase = (g * 35) + 20; auditCtx.beginPath();
-        for(let x=0; x<auditCtx.canvas.width; x+=2) { const y = yBase + Math.sin((x*0.1) + auditOffset + g) * 8; if(x===0) auditCtx.moveTo(x, y); else auditCtx.lineTo(x, y); }
+        const yBase = (g * 25) + 15; auditCtx.beginPath();
+        for(let x=0; x<auditCtx.canvas.width; x+=2) { const y = yBase + Math.sin((x*0.1) + auditOffset + g) * 6; if(x===0) auditCtx.moveTo(x, y); else auditCtx.lineTo(x, y); }
         auditCtx.stroke();
     }
 }
@@ -111,12 +110,12 @@ function drawDials() {
     const w = gaugeCtx.canvas.width / 3; const h = gaugeCtx.canvas.height;
     currErr += (targetErr - currErr) * 0.1;
     const vals = [0.7, 0.4, currErr]; const labels = ["BETA", "GAMMA", "INVARIANT ERROR"];
-    gaugeCtx.textAlign = 'center'; gaugeCtx.font = '12px Rajdhani';
+    gaugeCtx.textAlign = 'center'; gaugeCtx.font = '10px Rajdhani';
     for(let i=0; i<3; i++) {
-        const cx = (w * i) + (w/2); const cy = h - 20; const r = 25;
-        gaugeCtx.beginPath(); gaugeCtx.arc(cx, cy, r, Math.PI, 0); gaugeCtx.strokeStyle = '#1a4f54'; gaugeCtx.lineWidth = 4; gaugeCtx.stroke();
+        const cx = (w * i) + (w/2); const cy = h - 15; const r = 20;
+        gaugeCtx.beginPath(); gaugeCtx.arc(cx, cy, r, Math.PI, 0); gaugeCtx.strokeStyle = '#1a4f54'; gaugeCtx.lineWidth = 3; gaugeCtx.stroke();
         gaugeCtx.beginPath(); gaugeCtx.arc(cx, cy, r, Math.PI, Math.PI + (vals[i] * Math.PI)); gaugeCtx.strokeStyle = i===2 && currErr > 0.6 ? '#ff5252' : '#1ad3dc'; gaugeCtx.stroke();
-        gaugeCtx.fillStyle = '#8bdfe6'; gaugeCtx.fillText(labels[i], cx, h - 2);
+        gaugeCtx.fillStyle = '#8bdfe6'; gaugeCtx.fillText(labels[i], cx, h - 3);
     }
 }
 
