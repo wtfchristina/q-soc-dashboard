@@ -3,22 +3,25 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-// --- THREE.JS ---
-const container = document.getElementById('three-container');
+const physicsPanel = document.querySelector('.physics-panel');
+const container = document.createElement('div');
+container.id = 'three-container';
+physicsPanel.insertBefore(container, physicsPanel.firstChild);
+
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, physicsPanel.clientWidth / physicsPanel.clientHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setSize(physicsPanel.clientWidth, physicsPanel.clientHeight);
 container.appendChild(renderer.domElement);
 
 const renderScene = new RenderPass(scene, camera);
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 1.8, 0.4, 0.85);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(physicsPanel.clientWidth, physicsPanel.clientHeight), 1.8, 0.4, 0.85);
 bloomPass.threshold = 0.0; bloomPass.strength = 2.0; bloomPass.radius = 0.8;
 const composer = new EffectComposer(renderer);
 composer.addPass(renderScene); composer.addPass(bloomPass);
 
-// SMALLER GLOBE
-const geometry = new THREE.SphereGeometry(1.6, 32, 32);
+// INCREASE GLOBE SIZE TO MEET THE ORBIT NATURALLY
+const geometry = new THREE.SphereGeometry(3.0, 48, 48);
 const material = new THREE.MeshBasicMaterial({ color: 0x13383a, wireframe: true });
 const blackHole = new THREE.Mesh(geometry, material);
 scene.add(blackHole);
@@ -38,13 +41,14 @@ const pinnMat = new THREE.LineBasicMaterial({ color: 0x00bbff, linewidth: 2 });
 const pinnTrail = new THREE.Line(pinnGeo, pinnMat);
 scene.add(pinnTrail);
 
-camera.position.z = 5.5;
+// PULL CAMERA BACK TO FIT LARGER GLOBE
+camera.position.z = 8.5;
 
 function resizeThree() {
-    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.aspect = physicsPanel.clientWidth / physicsPanel.clientHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    composer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(physicsPanel.clientWidth, physicsPanel.clientHeight);
+    composer.setSize(physicsPanel.clientWidth, physicsPanel.clientHeight);
 }
 window.addEventListener('resize', resizeThree);
 
@@ -67,9 +71,7 @@ function setupCanvas(id) {
     return cvs.getContext('2d');
 }
 
-// Radar Chart
-const radarCtx = setupCanvas('radar-canvas');
-let radarPulse = 0;
+const radarCtx = setupCanvas('radar-canvas'); let radarPulse = 0;
 function drawRadar() {
     radarCtx.clearRect(0, 0, radarCtx.canvas.width, radarCtx.canvas.height);
     const cx = radarCtx.canvas.width / 2; const cy = radarCtx.canvas.height / 2; const r = Math.min(cx, cy) - 5;
@@ -82,9 +84,7 @@ function drawRadar() {
     radarCtx.closePath(); radarCtx.fill(); radarCtx.stroke();
 }
 
-// Audit Graphs
-const auditCtx = setupCanvas('audit-graph-canvas');
-let auditOffset = 0;
+const auditCtx = setupCanvas('audit-graph-canvas'); let auditOffset = 0;
 function drawAuditGraphs() {
     auditCtx.clearRect(0, 0, auditCtx.canvas.width, auditCtx.canvas.height);
     auditCtx.strokeStyle = '#39ff96'; auditCtx.lineWidth = 1.5; auditOffset += 0.1;
@@ -103,8 +103,7 @@ function drawLineChart(ctx, color, data, fill=false) {
     if(fill) { ctx.lineTo(ctx.canvas.width, ctx.canvas.height); ctx.lineTo(0, ctx.canvas.height); ctx.fillStyle = color.replace(')', ', 0.2)').replace('rgb', 'rgba'); if(color.startsWith('#')) ctx.fillStyle = color + '33'; ctx.fill(); }
 }
 
-const gaugeCtx = setupCanvas('gauges-canvas');
-let targetErr = 0.2; let currErr = 0.2;
+const gaugeCtx = setupCanvas('gauges-canvas'); let targetErr = 0.2; let currErr = 0.2;
 function drawDials() {
     gaugeCtx.clearRect(0, 0, gaugeCtx.canvas.width, gaugeCtx.canvas.height);
     const w = gaugeCtx.canvas.width / 3; const h = gaugeCtx.canvas.height;
@@ -139,7 +138,6 @@ function animateAll() {
 window.addEventListener('resize', () => { [eegCtx, stressCtx, freqCtx, driftCtx, gaugeCtx, radarCtx, auditCtx].forEach(c => { c.canvas.width = c.canvas.parentElement.clientWidth; c.canvas.height = c.canvas.parentElement.clientHeight; }); });
 animateAll();
 
-// RAPID LOG GENERATOR
 const logList = document.getElementById('audit-log-list');
 const randomLogs = ["Digital handshake: 45S65", "Crypto keys authenticating...", "Network code: 32S001", "Multi-modal telemetry nominal...", "WebSocket connected.", "Digital handshake: +35SG1T", "Network code: SEC0RT"];
 setInterval(() => {
@@ -157,7 +155,6 @@ function logAlert(msg, color) {
     logList.prepend(li);
 }
 
-// WEBSOCKET
 let pointCountClient = 0;
 const ws = new WebSocket('wss://q-soc-daemon.onrender.com');
 let isAlertState = false;
@@ -167,22 +164,14 @@ ws.onmessage = (event) => {
         const data = JSON.parse(event.data); if (isAlertState) return;
         if (data.phys_pos && data.pinn_pos) {
             
-            // SCALE FACTOR ADDED HERE (brings the orbit closer to the globe)
-            const orbitScale = 0.3;
-            
+            // REMOVED MULTIPLIER: Use raw coordinates natively so they wrap correctly
             for (let i = (maxPoints - 1) * 3; i >= 3; i--) { 
                 physPositions[i] = physPositions[i - 3]; 
                 pinnPositions[i] = pinnPositions[i - 3]; 
             }
             
-            // Multiply the incoming coordinates by the scale factor
-            physPositions[0] = data.phys_pos[0] * orbitScale; 
-            physPositions[1] = data.phys_pos[1] * orbitScale; 
-            physPositions[2] = data.phys_pos[2] * orbitScale;
-            
-            pinnPositions[0] = data.pinn_pos[0] * orbitScale; 
-            pinnPositions[1] = data.pinn_pos[1] * orbitScale; 
-            pinnPositions[2] = data.pinn_pos[2] * orbitScale;
+            physPositions[0] = data.phys_pos[0]; physPositions[1] = data.phys_pos[1]; physPositions[2] = data.phys_pos[2];
+            pinnPositions[0] = data.pinn_pos[0]; pinnPositions[1] = data.pinn_pos[1]; pinnPositions[2] = data.pinn_pos[2];
             
             pointCountClient = Math.min(pointCountClient + 1, maxPoints);
             physGeo.setDrawRange(0, pointCountClient); pinnGeo.setDrawRange(0, pointCountClient);
