@@ -166,9 +166,24 @@ ws.onmessage = (event) => {
     try {
         const data = JSON.parse(event.data); if (isAlertState) return;
         if (data.phys_pos && data.pinn_pos) {
-            for (let i = (maxPoints - 1) * 3; i >= 3; i--) { physPositions[i] = physPositions[i - 3]; pinnPositions[i] = pinnPositions[i - 3]; }
-            physPositions[0] = data.phys_pos[0]; physPositions[1] = data.phys_pos[1]; physPositions[2] = data.phys_pos[2];
-            pinnPositions[0] = data.pinn_pos[0]; pinnPositions[1] = data.pinn_pos[1]; pinnPositions[2] = data.pinn_pos[2];
+            
+            // SCALE FACTOR ADDED HERE (brings the orbit closer to the globe)
+            const orbitScale = 0.3;
+            
+            for (let i = (maxPoints - 1) * 3; i >= 3; i--) { 
+                physPositions[i] = physPositions[i - 3]; 
+                pinnPositions[i] = pinnPositions[i - 3]; 
+            }
+            
+            // Multiply the incoming coordinates by the scale factor
+            physPositions[0] = data.phys_pos[0] * orbitScale; 
+            physPositions[1] = data.phys_pos[1] * orbitScale; 
+            physPositions[2] = data.phys_pos[2] * orbitScale;
+            
+            pinnPositions[0] = data.pinn_pos[0] * orbitScale; 
+            pinnPositions[1] = data.pinn_pos[1] * orbitScale; 
+            pinnPositions[2] = data.pinn_pos[2] * orbitScale;
+            
             pointCountClient = Math.min(pointCountClient + 1, maxPoints);
             physGeo.setDrawRange(0, pointCountClient); pinnGeo.setDrawRange(0, pointCountClient);
             physGeo.attributes.position.needsUpdate = true; pinnGeo.attributes.position.needsUpdate = true;
