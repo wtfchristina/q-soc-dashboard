@@ -71,8 +71,8 @@ function logAudit(msg, color = '') {
     if (logList.children.length > 20) logList.lastChild.remove();
 }
 
-// Option B Cloud Prep: This URL will become an environment variable during deployment.
-const ws = new WebSocket('ws://0.0.0.0:8766'); 
+// Connected to your live Render backend
+const ws = new WebSocket('wss://q-soc-daemon.onrender.com'); 
 
 let isAlertState = false;
 
